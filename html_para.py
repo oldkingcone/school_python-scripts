@@ -1,11 +1,18 @@
 #! /usr/tmp/env python3
-# Guns up, lets do this leeroy. 
+# mcone_lab04_paraprinting.py
+# Matthew Cone
+# Guns up, lets do this leeroy.
 # LeeroyJenkins, circa 2005
 
 import os
 import sys
 import datetime
+import webbrowser
+'''
+Added some functionality, it will display the HTML file as a served webpage within the command line.
+There is added error handling within the exception clause, user errors are now logged, with date/time and user.
 
+'''
 def getParagraph(selection):
     switcher = {
         1: para1,
@@ -22,9 +29,8 @@ def getParagraph(selection):
 
 os.system('clear')
 continue_loop = 'Y'
-runner = 0
-access_time = datetime.datetime.now() # prints current date time to the variable access_time
-user = os.getlogin() # stores username to the varibale users
+access_time = datetime.datetime.now()
+user = os.getlogin()
 
 intro = '''
     WelCoMe!!!!!!!!!!!!! 
@@ -128,13 +134,14 @@ while continue_loop == 'Y':
     accum2 = 0
     accum3 = 0
     accum4 = 0
-    header = '<!DOCTYPE html>\n<html>\n<body>' # prepared html tags
-    footer = '</body>\n</html>' # prepared closing html tags
-    os.chdir('~/public_html/') # ensure it is accessible from our web-root dir.
-    name = input("What is your name friend?\n").lower() # keep it lower case for ease of use on cmd-line
-    generated_File = name + '.html' # store users name + html extension.
-    file_Holder = open(generated_File, 'wt') # open as write-text mode to ensure no 2 files exist with the same name.
-    log_File = open('~/logs/rotating_birth_log.csv', 'at') # append to log file. keep a rolling log.
+    header = '<!DOCTYPE html>\n<html>\n<body>'
+    footer = '</body>\n</html>'
+    os.chdir('~/public_html/')
+    name = input("What is your name friend?\n").lower()
+    created_File = name + '.html'
+    file_Holder = open(lgf, 'wt')
+    log_File = open('~/logs/rotating_birth_log.csv', 'at')
+    
     try:
         bday = int(input("Please enter the day you were born! \n->"))
         bmonth = int(input("Please enter the month you were born\n ->"))
@@ -144,29 +151,37 @@ while continue_loop == 'Y':
         for x in sum1:
             accum1 += int(x)
             accum2 = str(accum1)
-        accum3 = int(accum2[0]) + int(accum2[1])
+        accum3 = int(accum2[0]) + int(accum2[:4])
         if accum3 > 9:
             accum3 = str(accum3)
             for x in str(accum3):
                 accum4 += int(x)
-            data = [header, str(name), ' >> ', str(accum4),' >> \n',str(getParagraph(accum4)), footer] # creates a managable data set.
-            file_Holder.write(''.join(data)) # writes HTML and user data into file.
+            data = [hdr,'\n', str(name), ' >> ', str(accum4),' >> \n',str(getParagraph(accum4)),'\n', ftr]
+            file_Holder.write(''.join(data))
             file_Holder.close()
-            runner +=1 # incriment the counter.
-            access = ['PROGRAM RAN AT: ',str(access_time),'\n RUNNING COUNTER: ',str(runner), ' RAN BY:', user, '\n']
-            log_File.write(''.join(access)) # appends to log file. with date/time and username.
-            print("Your Birth paragraph is located within this file:",name,".html!!") # alerts the user as to where the file is store.
-            #TODO, get the absolute path to the stored html file.
+            runner = 0
+            runner = runner + 1
+            access = ['PROGRAM RAN AT: ',str(access_time),'\n RUNNING COUNTER: ',str(runner), ' RAN BY: ', user, '\n']
+            log_File.write(''.join(access))
+            print("Your Birth paragraph is located within this file:",name,".html!!")
+            browser_Tab1 = 'http://www.your-site-goes-here'+lgf
+            webbrowser.open(str(browser_Tab1))
         elif int((accum3 >= 1)) or int((accum3 <= 9)):
-                runner +=1
-                access2 = ['PROGRAM RAN AT: ',str(access_time),'\n RUNNING COUNTER: ',str(runner), ' RAN BY:', user, '\n']
-                log_File.write(''.join(access2)) # appends to log file with second data set.
+                runner = 0
+                runner = runner + 1
+                access2 = ['PROGRAM RAN AT: ',str(access_time),'\n RUNNING COUNTER: ',str(runner), ' RAN BY: ', user, '\n']
+                log_File.write(''.join(access2))
                 log_File.close()
-                data = [header, str(name), ' >> ', str(accum3),' >>\n ',str(getParagraph(accum3)), footer] # generates second dataset
-                file_Holder.write(''.join(data)) # writes second data set.
+                data = [hdr,'\n', str(name), ' >> ', str(accum3),' >>\n ',str(getParagraph(accum3)),'\n', ftr]
+                file_Holder.write(''.join(data))
                 file_Holder.close()
                 print("Your Birth paragraph is located within this file:",name,".html!!")
-     except ValueError:
+                browser_Tab2 = 'http://www.your-url-goes-here.com'+lgf
+                webbrowser.open(str(browser_Tab2))
+    except (ValueError, OSError, TypeError, RuntimeError, KeyboardInterrupt) as error:
+        excp = ["\nError encountered: ", str(error),'\n', "From User: ", str(user), " Date: ", str(access_time)]
+        log_File.write(''.join(excp))
+        log_File.close()
         os.system('clear')
         print("[+] Sorry, i didn't quite get that... \n")
         continue_loop = input("[+] Would you like to try again? Y or N\n->\t").upper()
